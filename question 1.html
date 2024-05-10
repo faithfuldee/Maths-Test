@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maths Test</title>
+  <script src="expressions.js"></script>
+  <style>
+    body {
+      text-align: left;
+      margin: 25px;
+    }
+  </style>
+</head>
+<body>
+
+<form id="nameform" onsubmit="return startTest()">
+    <label for="label"><h1>Welcome to your Math Test</h1></label>
+    <label for="fname">First name:</label><br>
+    <input type="text" id="fname" name="fname" placeholder="Enter your first name"><br>
+    <br>
+    <label for="label"><h4>Choose the difficulty to your test based on the drop-down below:</h4></label>
+    <label for="level">Level:</label>
+    <select id="difficulty" required>
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <br><br>
+
+    <button type="button" onclick="startTest()">Start</button>
+</form>
+
+<div id="test-questions" style="display: none;">
+  <h2>Welcome <span id="userName"></span>! You are now taking the <span id="testDifficulty"></span>test.</h2>
+  <form id="test-form"></form>
+  <div>
+    <button type="button" onclick="finishTest()">Finish</button>
+  </div>
+</div>
+
+<div id="score-message"></div>
+
+<script>
+  var userName, difficulty, currentQuestion = 1;
+  var userAnswers = [];
+  var correctAnswers = [];
+  var testFinished = false;
+
+  // This is the function to start the test
+  function startTest() {
+    userName = document.getElementById('fname').value;
+    difficulty = document.getElementById('difficulty').value;
+
+    // This will display the welcome message
+    document.getElementById('userName').innerText = userName;
+    document.getElementById('nameform').style.display = 'none';
+    document.getElementById('test-questions').style.display = 'block';
+
+    // This will generate the questions dynamically based on difficulty
+    let testForm = document.getElementById('test-form');
+    for (let i = 1; i <= 5; i++) {
+      let expression = generateExpression(difficulty);
+      let questionLabel = document.createElement('label');
+      questionLabel.innerHTML = `Question ${i}: ${expression} = `;
+      let answerInput = document.createElement('input');
+      answerInput.type = 'text';
+      answerInput.id = `answer${i}`;
+      answerInput.required = true;
+      testForm.appendChild(questionLabel);
+      testForm.appendChild(answerInput);
+      testForm.appendChild(document.createElement('br'));
+    }
+
+    
+    return false;
+  }
+
+  // This is the function to finish the test
+  function finishTest() {
+    if (testFinished) {
+      return; // This should prevent the submission of the test,therefore once completed it shouldn't let them resubmit the test
+    }
+
+    for (let i = 1; i <= 5; i++) {
+      let userAnswer = parseFloat(document.getElementById(`answer${i}`).value);
+      userAnswers.push(userAnswer);
+    }
+
+    // This will check user's answers
+    let correctCount = 0;
+    for (let i = 0; i < 5; i++) {
+      if (userAnswers[i] && Math.abs(userAnswers[i] - correctAnswers[i]) < 0.0001) {
+        correctCount++;
+      }
+    }
+
+    let starImage = '<img src="https://www.kindpng.com/picc/m/49-492896_cute-star-png-page-cute-star-clipart-transparent.png" alt="star" class="star-image" style="width: 20px;">';
+    let scoreMessage = `Your score: ${correctCount}/5 (${starImage.repeat(correctCount)})`;
+
+    // This will display the score message at the bottom of the page
+    document.getElementById('score-message').innerHTML = `Thank you, ${userName}! ${scoreMessage}`;
+
+
+    for (let i = 1; i <= 5; i++) {
+      const answerInput = document.getElementById(`answer${i}`);
+      answerInput.disabled = true;
+    }
+    document.getElementById('test-questions').querySelector('button').disabled = true;
+
+   
+    testFinished = true;
+
+  }
+
+  function generateExpression(difficulty) {
+    var operands = [10, 20, 30, 40, 50];
+    var operators = ['+', '-', '*', '&divide;'];
+    var expression = '';
+
+   
+    switch (difficulty) {
+      case 'easy':
+        operands.push(10, 20, 30);
+        break;
+      case 'medium':
+        operands.push(40, 50, 60);
+        break;
+      case 'hard':
+        operands.push(70, 80, 90, 100);
+        break;
+      default:
+        operands.push(10, 20, 30);
+        break;
+    }
+
+    // This is generate the question, the operands displays the equations in the test
+    var operand1 = operands[Math.floor(Math.random() * operands.length)];
+    var operator = operators[Math.floor(Math.random() * operators.length)];
+    var operand2 = operands[Math.floor(Math.random() * operands.length)];
+
+    let correctAnswer;
+    switch (operator) {
+      case '+':
+        correctAnswer = operand1 + operand2;
+        break;
+      case '-':
+        correctAnswer = operand1 - operand2;
+        break;
+      case '*':
+        correctAnswer = operand1 * operand2;
+        break;
+      case '&divide;':
+        correctAnswer = operand1 / operand2;
+        break;
+      default:
+        break;
+    }
+
+    // This will be able to display the correct answer
+    correctAnswers.push(correctAnswer);
+
+    return `${operand1} ${operator} ${operand2}`;
+  }
+</script>
+
+</body>
+</html>
+
